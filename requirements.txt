@@ -1,0 +1,6 @@
+requests
+python-dotenv
+gtts
+mutagen
+ffmpeg-python
+TTS
