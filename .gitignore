@@ -1,5 +1,34 @@
-.env
+# Python ignores
 __pycache__/
-*.pyc
+*.py[cod]
 *.pyo
+*.pyd
 *.swp
+*.tmp
+*.log
+
+# Virtual envs
+venv/
+.env
+.env.*
+.env.local
+
+# OS / tooling
+.DS_Store
+.vscode/
+.idea/
+
+# Node (if any)
+node_modules/
+
+# Media outputs
+output/
+*.mp4
+*.mp3
+
+# Cache
+.cache/
+.mypy_cache/
+.pytest_cache/
+
+
