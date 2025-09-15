@@ -6,7 +6,6 @@ import subprocess
 import os
 from dotenv import load_dotenv
 import json
-from gtts import gTTS
 from mutagen.mp3 import MP3
 
 # Load environment variables from .env file
@@ -19,6 +18,11 @@ PEXELS_VIDEO_SEARCH_URL = "https://api.pexels.com/videos/search"
 # Google AI Studio Gemini 1.5 Flash API
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 GOOGLE_AI_STUDIO_API_URL = "https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent"
+
+
+
+# Murf AI Python SDK
+from murf import Murf
 
 def gemini_generate(prompt, max_tokens=256):
     headers = {"Content-Type": "application/json"}
@@ -112,6 +116,41 @@ def process_video(input_path, output_path, duration):
     if 'temp_looped_path' in locals():
         shutil.rmtree(temp_dir)
 
+
+
+def murf_tts(text, output_path, voice_id="en-UK-pearl"):
+    client = Murf(
+        api_key="ap2_5f1b1f03-645f-45c1-a96d-18f8d4d3ec4a"
+    )
+    res = client.text_to_speech.generate(
+        text=text,
+        voice_id=voice_id,
+        rate=10
+    )
+    
+    # Check if Murf returned a URL (which it does)
+    if hasattr(res, 'audio_file') and res.audio_file:
+        audio_url = res.audio_file
+        print(f"Murf Audio URL: {audio_url}")
+        
+        # Download the audio file from the URL
+        import requests
+        audio_response = requests.get(audio_url)
+        if audio_response.status_code == 200:
+            with open(output_path, "wb") as f:
+                f.write(audio_response.content)
+            print(f"Audio downloaded and saved to: {output_path}")
+            
+            # Return the actual duration from Murf response
+            duration = getattr(res, 'audio_length_in_seconds', 15)
+            return duration
+        else:
+            print(f"Failed to download audio from URL: {audio_response.status_code}")
+            return False
+    else:
+        print("Murf AI TTS error: No audio URL returned.")
+        return False
+
 if __name__ == "__main__":
     prompt = input("Enter a prompt for your story: ")
     story = generate_story(prompt)
@@ -125,15 +164,15 @@ if __name__ == "__main__":
     with open(story_json_path, "w") as f:
         json.dump({"story": story}, f, indent=2)
     print(f"Story saved to {story_json_path}")
-    # Save story as audio using gTTS
+    # Save story as audio using Murf AI TTS
     audio_path = os.path.join(output_folder, f"story_{timestamp}.mp3")
-    tts = gTTS(story)
-    tts.save(audio_path)
-    print(f"Story audio saved to {audio_path}")
-    # Get audio duration
-    audio = MP3(audio_path)
-    audio_duration = audio.info.length
-    print(f"Audio duration: {audio_duration:.2f} seconds")
+    audio_duration = murf_tts(story, audio_path)
+    if audio_duration:
+        print(f"Story audio saved to {audio_path}")
+        print(f"Audio duration: {audio_duration:.2f} seconds")
+    else:
+        print("Failed to generate audio with Murf AI TTS.")
+        audio_duration = 15  # fallback duration
     keywords = extract_keywords(story)
     print("Extracted Keywords:", keywords)
     video_url = search_pexels_video(keywords)
@@ -147,7 +186,7 @@ if __name__ == "__main__":
             print("Video downloaded successfully.")
             # Process video: trim and crop to audio duration
             processed_filename = os.path.join(output_folder, f"{safe_keyword}_{timestamp}_processed.mp4")
-            print(f"Processing video to {audio_duration:.2f}s and 9:16 aspect ratio: {processed_filename}")
+            print(f"Processing video to {audio_duration:.2f}s: {processed_filename}")
             process_video(filename, processed_filename, audio_duration)
             print("Processed video saved.")
             # Delete original video
