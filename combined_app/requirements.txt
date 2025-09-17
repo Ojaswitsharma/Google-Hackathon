@@ -1,0 +1,23 @@
+# Core API dependencies
+fastapi
+uvicorn
+pydantic
+
+# AI/ML dependencies
+langchain
+langchain-google-genai
+google-generativeai
+langchain-core
+langgraph
+
+# Audio/Video processing
+requests
+python-dotenv
+gtts
+mutagen
+ffmpeg-python
+murf
+
+# Additional utilities
+Pillow
+typing-extensions
