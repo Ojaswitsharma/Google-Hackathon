@@ -1,0 +1,17 @@
+# Google Cloud Function Configuration
+runtime: python311
+
+# Environment variables
+env_variables:
+  RAW_ASSETS_BUCKET: "your-raw-assets-bucket-name"
+  OUTPUT_BUCKET: "your-output-bucket-name"
+
+# Cloud Function configuration
+functions:
+  merge_media_files:
+    type: cloudevent
+    trigger:
+      eventType: google.cloud.storage.object.v1.finalized
+      eventFilters:
+        - attribute: bucket
+          value: your-raw-assets-bucket-name

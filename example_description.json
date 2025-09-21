@@ -1,0 +1,9 @@
+{
+  "description": "This is an example description that will be overlaid on the video as subtitles. The text will be automatically split into appropriate chunks and displayed at timed intervals throughout the video. You can include multiple sentences and the system will handle the formatting automatically.",
+  "project_id": "projectX",
+  "created_at": "2025-09-10T10:00:00Z",
+  "metadata": {
+    "creator": "Friend's Tool",
+    "version": "1.0"
+  }
+}
